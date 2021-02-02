@@ -29,15 +29,14 @@ if (empty($_GET['standard']) === false) {
     $options['standard'] = "--standard=$standard";
 }
 
-(function() use (&$options) {
-    foreach(['all',] as $arg) {
-        if (isset($_GET[$arg]) === true) {
-            $options[$arg] = "--$arg";
-        } else {
-            $options[$arg] = '';
-        }
-    }
-})();
+if (isset($_GET['all']) === false) {
+    $options['all'] = '';
+} elseif ($_GET['all'] === '2') {
+    $options['all'] = '--everything';
+} else {
+    $options['all'] = '--all';
+}
+
 $options = join(' ', $options);
 $command = "/var/www/manager/super-giggle/bin/super-giggle $options --json --diff --repo=/var/www/html --phpcs=/var/www/manager/phpcs/bin/phpcs";
 $result  = shell_exec($command);
@@ -58,8 +57,9 @@ $json    = (json_decode($result) ?? []);
             <nav>
                 <div class="col" >
                     <span class="button-group--toggle margin-bottom--1em" data-button-toggle-set="all" >
-                        <a href="?all=" class="button" data-parse-auto-get="name=all; toggle" >Last commit</a>
-                        <a href="?all=1" class="button" data-parse-auto-get="name=all; value=1; toggle" >Whole file</a>
+                        <a href="?all=" class="button" data-parse-auto-get="name=all; toggle" >Lines changed</a>
+                        <a href="?all=1" class="button" data-parse-auto-get="name=all; value=1; toggle" >File changed</a>
+                        <a href="?all=2" class="button" data-parse-auto-get="name=all; value=2; toggle; remove=all" >All project</a>
                     </span>
                 </div>
                 
