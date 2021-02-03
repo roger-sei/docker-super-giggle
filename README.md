@@ -1,9 +1,9 @@
-# README
+# Super Giggle Bundle
 
 Super-Giggle allows you to visualize code violations using modern code conventions.
 You can filter the results checking only the last changes or the whole project and choose **PSR12**, **Pear**, **Zend** and others code conventions.
 
-
+![Screenshot of working Super Giggle](https://roger-sei.github.io/assets/docker-super-giggle.png)
 
 ### Instructions:
 
