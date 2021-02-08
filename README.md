@@ -1,14 +1,12 @@
-## Visual wrapper for Super Giggle
+## Visual wrapper for Super Giggle and PHPCS
 
 ![GitHub top language](https://img.shields.io/github/languages/top/roger-sei/docker-super-giggle?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/roger-sei/docker-super-giggle?style=for-the-badge)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/roger-sei/docker-super-giggle?style=for-the-badge)
 ![GitHub last commit](https://img.shields.io/github/last-commit/roger-sei/docker-super-giggle?style=for-the-badge)
 
-
 Super-Giggle allows you to visualize code violations using modern code conventions.
 Filter results checking only the last changes, unstaged files or a full scan in the project and choose **PSR12**, **Pear**, **Zend** among others popular code conventions.
-
 
 ![Super Giggle Demo](https://roger-sei.github.io/assets/visual-demo.gif)
 
