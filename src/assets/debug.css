@@ -1,0 +1,109 @@
+.code-viewer {
+    background: #000;
+    color: #a29d9d;
+    height: calc(100% - 56px);
+    position: fixed;
+    right: 0;
+    top: 56px;
+}
+    body.code-viewer--active .panel__data, body.code-viewer--active .main-nav {
+        margin-right: 50%;
+    }
+    body.code-viewer--active .code-viewer {
+        width: calc(50% - 2em);
+    }
+.code-viewer__contents {
+    background: #303030;
+    box-sizing: border-box;
+    font-family: "Fira code", "Inconsolata", "Fira Mono", "Source Code Pro", Monaco, Consolas, "Lucida Console", monospace;
+    font-size: .6em;
+    line-height: 1.4em;
+    height: calc(100% - 2em);
+    margin: 1em;
+    padding: 1em;
+    overflow-y: scroll;
+}
+        .code-viewer__contents::-webkit-scrollbar {
+            display: none;
+            width: 1em;
+        }
+    .code-viewer__contents .active {
+        background: #d9534f;
+        color: #fff !important;
+        padding: .25em 0;
+    }
+    .code-viewer__contents .error {
+        color: #e54747;
+    }
+    .code-viewer__contents > div {
+        white-space: pre;
+    }
+.collapser__code {
+    border-left: 2px solid #aaf;
+    box-sizing: border-box;
+    padding-left: 1em;
+}
+.collapser__code-copy {
+    background: #f0f0f0;
+    border-radius: 4px;
+    padding: .25em 1em;
+    position: absolute;
+    right: 1em;
+    top: 1em;
+    text-align: right;
+}
+.collapser__content {
+    border: none;
+    display: block;
+    font-family: 'Fira code';
+    font-size: .85em;
+    height: 100% !important;
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    transition: all 0.3s ease 0s;
+    width: 100% !important;
+    
+}
+    .collapser__content.visible {
+        max-height: 4000px;
+        overflow: auto;
+        padding: 1em 0;
+    }
+.collapser__title {
+    border-bottom: 1px solid #aaa;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin: 0;
+    padding: 1em 0 .5em;
+}
+    .collapser__title::before {
+        content: '[+] ';
+    }
+    .collapser__title.active::before {
+        content: '[-] ';
+    }
+#eButtonCloseCodeViewer {
+    background: #fff;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    right: 1em;
+    top: 1em;
+}
+    #eButtonCloseCodeViewer > img {
+        display: block;
+        width: 24px;
+    }
+.span-number {
+    display: inline-block;
+    text-align: right;
+    width: 3em;
+}
+.span-tab {
+    background: #333;
+    display: inline-block;
+    width: 1em;
+}

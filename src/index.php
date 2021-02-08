@@ -1,101 +1,217 @@
 <?php
-$standard = 'psr12';
-$root     = realpath(dirname(__DIR__));
-$custom   = '/var/www/html/phpcs.xml';
-if (file_exists($custom) === false) {
-    $custom = $standard;
-}
 
-$options = [];
+error_reporting(E_ALL);
+ini_set('display_errors', 'on');
+define('ROOT', dirname(__DIR__));
 
-if (empty($_GET['standard']) === false) {
-    switch(strtolower($_GET['standard'])) {
-    case 'custom':
-        $standard = $custom;
-    break;
-    case 'mysource':
-    case 'pear':
-    case 'psr2':
-    case 'psr12':
-    case 'squiz':
-    case 'zend':
-        $standard = strtolower($_GET['standard']);
-    break;
-    default:
-        $standard = 'psr12';
-    break;
+$instance = new class
+{
+
+    /**
+     * Diretório de projeto.
+     *
+     * @var string.
+     */
+    private $workingDir = '/var/www/html';
+
+
+    /**
+     * Verifica as rotas.
+     */
+    public function __construct()
+    {
+        $this->systemCheckup();
+
+        if (isset($_GET['project']) === true) {
+            $this->workingDir = $this->workingDir . '/' . urldecode($_GET['project']);
+            $this->processValidationPage();
+        } elseif (file_exists("{$this->workingDir}/.git") === true) {
+            $this->processValidationPage();
+        } else {
+            $this->processProjectsPage();
+        }
     }
 
-    $options['standard'] = "--standard=$standard";
-}
 
-if (isset($_GET['all']) === false) {
-    $options['all'] = '';
-} elseif ($_GET['all'] === '2') {
-    $options['all'] = '--everything';
-} else {
-    $options['all'] = '--all';
-}
+    /**
+     * Caso o assert seja TRUE, a página de erro será exibida.
+     *
+     * @param boolean $assert  Validação true ou false.
+     * @param string  $message Mensagem de exibição, em caso de erro.
+     *
+     * @return void.
+     */
+    private function dieIfFail(bool $assert, string $message): void
+    {
+        if ($assert === true) {
+            include 'api/error.inc';
+            exit;
+        }
+    }
 
-$options = join(' ', $options);
-$command = "/var/www/manager/super-giggle/bin/super-giggle $options --json --diff --repo=/var/www/html --phpcs=/var/www/manager/phpcs/bin/phpcs";
-$result  = shell_exec($command);
-$json    = (json_decode($result) ?? []);
-?><!DOCTYPE html>
-<html>
-    <head>
-        <style>
-            <?php require 'assets/main.css' ?>
-        </style>
-        
-        <script >
-            var Queue = [];
-        </script>
-    </head>
-    <body>
-        <main>
-            <nav>
-                <div class="col" >
-                    <span class="button-group--toggle margin-bottom--1em" data-button-toggle-set="all" >
-                        <a href="?all=" class="button" data-parse-auto-get="name=all; toggle" >Lines changed</a>
-                        <a href="?all=1" class="button" data-parse-auto-get="name=all; value=1; toggle" >File changed</a>
-                        <a href="?all=2" class="button" data-parse-auto-get="name=all; value=2; toggle; remove=all" >All project</a>
-                    </span>
-                </div>
-                
-                <div class="col" >
-                    <span class="button-group--toggle" data-button-toggle-set="standard" >
-                        <?php if (empty($custom) === false) : ?>
-                        <a href="?standard=" class="button" data-parse-auto-get="name=standard; value=; toggle" >Custom</a>
-                        <?php endif ?>
-                        <a href="?standard=PSR2" class="button" data-parse-auto-get="name=standard; value=psr2; toggle" >PSR2</a>
-                        <a href="?standard=PSR12" class="button" data-parse-auto-get="name=standard; value=PSR12; toggle" >PSR12</a>
-                        <a href="?standard=Pear" class="button" data-parse-auto-get="name=standard; value=Pear; toggle" >Pear</a>
-                        <a href="?standard=Zend" class="button" data-parse-auto-get="name=standard; value=Zend; toggle" >Zend</a>
-                        <a href="?standard=Squiz" class="button" data-parse-auto-get="name=standard; value=Squiz; toggle" >Squiz</a>
-                        <a href="?standard=MySource" class="button" data-parse-auto-get="name=standard; value=MySource; toggle" >MySource</a>
-                    </span>
-                </div>
-            </nav>
-            
-            <div class="sections" >
-                <?php foreach ($json as $fileName => $errors) : ?>
-                <section class="card--flat" id="eEnvVars" >
-                    <h2>
-                        <span><?= $fileName ?></span>
-                    </h2>
-                    <div class="content alternate-rows" >
-                        <?php foreach ($errors as $error) : ?>
-                        <div class="grids" data-source="Column: <?= $error->column ?>; Source: <?= $error->source ?>" >
-                            <div class="col--line" ><?= $error->line ?></div>
-                            <div class="col--info" ><?= htmlentities($error->message) ?></div>
-                        </div>
-                        <?php endforeach ?>
-                    </div>
-                </section>
-                <?php endforeach ?>
-        </main>
-        
-        <script src="assets/main.js" async defer></script>
-    </body>
-</html>
+
+    /**
+     * Controla a página de erros.
+     *
+     * @return void.
+     */
+    private function processValidationPage(): void
+    {
+        $standard  = 'psr12';
+        $root      = realpath(dirname(__DIR__));
+        $hasCustom = (file_exists("{$this->workingDir}/phpcs.xml") === false);
+        $options   = [];
+
+        if (empty($_GET['standard']) === false) {
+            switch (strtolower($_GET['standard'])) {
+                case 'custom':
+                    $options['standard'] = '';
+                    break;
+                case 'mysource':
+                case 'pear':
+                case 'psr2':
+                case 'psr12':
+                case 'squiz':
+                case 'zend':
+                    $options['standard'] = '--standard=' . $_GET['standard'];
+                    break;
+                default:
+                    $options['standard'] = '--standard=psr12';
+                    break;
+            }
+        }
+
+        $checkType = '';
+        if (isset($_GET['all']) === false) {
+            $options['all'] = '';
+            $checkType = 'unstaged';
+        } elseif ($_GET['all'] === '3') {
+            $options['all'] = '--fullscan';
+            $checkType = 'fullscan';
+        } elseif ($_GET['all'] === '2') {
+            $options['all'] = '--diff-cached';
+            $checkType = 'staged';
+        } elseif ($_GET['all'] === '1') {
+            $options['all'] = '--all';
+            $checkType = 'staged';
+        }
+
+        if (isset($_GET['diff-cached']) === true) {
+            $options['diff-cached'] = '--diff-cached';
+        }
+
+        $options       = join(' ', $options);
+        $command       = "/var/www/manager/super-giggle/bin/super-giggle --warning-severity=5 $options --json --diff --repo={$this->workingDir} --phpcs=/var/www/manager/phpcs/bin/phpcs";
+        $result        = shell_exec($command);
+        $json          = (json_decode($result) ?? []);
+        $totalWarnings = 0;
+        $totalErrors   = 0;
+        $totalFiles    = 0;
+        foreach ($json as $fileName => $occurrences) {
+            foreach ($occurrences as $occurrence) {
+                if ($occurrence->type === 'ERROR') {
+                    $totalErrors++;
+                } else {
+                    $totalWarnings++;
+                }
+            }
+
+            $totalFiles++;
+        }
+
+        include 'api/validation.inc';
+    }
+
+
+    /**
+     * Processa a página de exibição dos projetos.
+     *
+     * @return void.
+     */
+    private function processProjectsPage(): void
+    {
+        $projects = $this->searchProjects();
+        include 'api/projects.inc';
+    }
+
+
+    /**
+     * Vasculha todo o diretório /var/www/html em busca de projetos git.
+     *
+     * @return array.
+     */
+    private function searchProjects(): array
+    {
+        $files    = [];
+        $root     = $this->workingDir;
+        $projects = new \RegexIterator(
+            new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator("$root/"),
+                null,
+                \RecursiveIteratorIterator::CATCH_GET_CHILD
+            ),
+            '/\.git\/\.$/i'
+        );
+        $json     = [];
+        foreach ($projects as $path) {
+            if (empty($path) === true) {
+                continue;
+            }
+
+            $name     = substr($path, strlen($root) + strpos("/$path", '/') + 1, -7);
+            $dir      = substr($path, 0, -7);
+            $relative = substr($dir, strlen($root) + 1);
+            preg_match("/(.*)\/\.git$/", $name, $match);
+
+            $total = [
+                'files' => 0,
+                'php'   => 0,
+                'js'    => 0,
+                'css'   => 0,
+                'html'  => 0,
+            ];
+            foreach ((new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator("$dir"))) as $pointer) {
+                if ($pointer->isDir() === true) {
+                    continue;
+                }
+
+                $total['files']++;
+                if (str_ends_with($pointer->getFilename(), '.php') === true) {
+                    $total['php']++;
+                } elseif (str_ends_with($pointer->getFilename(), '.js') === true) {
+                    $total['js']++;
+                } elseif (str_ends_with($pointer->getFilename(), '.css') === true) {
+                    $total['css']++;
+                } elseif (str_ends_with($pointer->getFilename(), '.html') === true || str_ends_with($pointer->getFilename(), '.htm') === true) {
+                    $total['html']++;
+                }
+            }
+
+            $json[$dir] = [
+                'name'     => $name,
+                'dir'      => $dir,
+                'relative' => $relative,
+                'total'    => [
+                    'files' => $total['files'],
+                    'php'   => $total['php'],
+                    'js'    => $total['js'],
+                    'css'   => $total['css'],
+                    'html'  => $total['html'],
+                ]
+            ];
+        }
+
+        return $json;
+    }
+
+
+    /**
+     * Valida as condições do sistema. Em caso de erro, um warning será exibido na tela.
+     *
+     * @return void.
+     */
+    private function systemCheckup(): void
+    {
+        $this->dieIfFail(is_readable($this->workingDir) === false, 'Working dir is unreadable! Please, give proper permissions to read the working project.');
+    }
+};

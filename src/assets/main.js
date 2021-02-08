@@ -7,7 +7,8 @@
  *
  * @update 2018/08/17
 **/
-var Queue = Queue || [];
+var Queue   = Queue || [];
+var Actions = Actions || {};
 Queue.views = [];
 Queue.execute = function(root) {
     root = (root || document.body);
@@ -35,6 +36,81 @@ Queue.push = function(fx) {
     this.execute();
 };
 GetHttpVariables = (function(){return(function(loc){var vars={};loc=(loc||window.location)+"";if(loc.contains("?")===true){var queryString=loc.substring(loc.indexOf("?")+1).split("&");for(var i=0,length=queryString.length,crr;i<length;i++){crr=[queryString[i].substringIndex("="),queryString[i].substringIndex("=",-1)];if(crr[0].substring((crr[0].length-2))==='[]'){if(typeof vars[crr[0].substring(0,(crr[0].length-2))]!=='object'){vars[crr[0].substring(0,(crr[0].length-2))]=[];};vars[crr[0].substring(0,(crr[0].length-2))].push(crr[1]);}else{crr.name=crr[0];crr.value=crr[1];vars[crr[0]]=crr[1];}}};vars.get=function(name){if(!name){return loc.substring(loc.indexOf("?")+1);};return this[name]||null;};return vars;});})();
+function Request(options) {
+    return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+        let content = '';
+
+        if (typeof options === 'string') {
+            options = {
+                url: options,
+            };
+        }
+
+        if (options.posts !== undefined) {
+            Object.keys(options.posts).forEach(key => {
+                content += "&"+ key +"="+ encodeURIComponent(options.posts[key]);
+            });
+        }
+
+        if (options.gets !== undefined) {
+            options.url += (options.url.indexOf("?") === -1) ? "?" : "&";
+            Object.keys(options.gets).forEach(key => {
+                options.url += "&"+ key +"="+ encodeURIComponent(options.gets[key]);
+            });
+        }
+
+        if (options.url.indexOf('format=') === -1) {
+            options.url += (options.url.contains('?') === true ? '&' : '?') + 'format=JSON';
+        }
+
+        options.method = options.method || "GET";
+        xhr.open(options.method.toUpperCase(), options.url);
+        if (options.headers !== undefined) {
+            Object.keys(options.headers).forEach(key => {
+                xhr.setRequestHeader(key, options.headers[key]);
+            });
+        }
+
+        if (['POST', 'UPDATE', 'PUT', 'PATCH'].contains(options.method.toUpperCase()) === true) {
+            xhr.setRequestHeader('Content-type', "application/x-www-form-urlencoded");
+        }
+
+        for (var i in options) {
+            if (xhr[i] === undefined) {
+                xhr[i] = options[i];
+            }
+        }
+        xhr.onload = ()  => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                if (typeof options.onComplete === 'function') {
+                    options.onComplete.call(xhr, xhr.response);
+                }
+                resolve.call(xhr, xhr.response);
+            } else {
+                if (typeof options.onLoading === 'function') {
+                    options.onLoading.call(xhr, xhr.response);
+                }
+                reject(xhr.statusText);
+            }
+        };
+        xhr.onerror = () => {
+            if (typeof options.onError === 'function') {
+                options.onComplete.call(xhr, xhr.response);
+            }
+            reject(xhr.statusText);
+        };
+        xhr.onabort = () => {
+            if (typeof options.onAbort === 'function') {
+                options.onAbort.call(xhr, xhr.response);
+            }
+            reject(xhr.statusText);
+        };
+
+        xhr.send(content);
+    });
+}
+Array.prototype.contains=function(obj,index){index=index<0?Math.max(this.length+index,0):0;for(var i=index||0,len=this.length;i<len;i++){if(this[i]===obj){return true}}return false};
 Array.prototype.each=function(callback){
     for(var i=0,len=this.length;i<len;i++){
         callback.call(this[i],this[i],i,this)
@@ -45,12 +121,12 @@ String.prototype.contains=function(s,index){return this.indexOf(s,index||0)>-1};
 String.prototype.substringIndex=function(delim,n){var delimPos=this.indexOf(delim);n=n||0;if(delimPos==-1){return this+"";}if(n>-1){for(var i=1;i<n;i++){delimPos=this.indexOf(delim,delimPos+1);if(delimPos==-1){delimPos=this.length;break;}}return this.substring(0,delimPos);}else{var str=this;n=Math.abs(n);for(var i=0;i<n;i++){delimPos=str.lastIndexOf(delim);str=str.substring(0,delimPos);}delimPos++;return this.substring(delimPos+delim.length-1);}return this;};
 String.prototype.parseProperties = function(delimiter){
     delimiter = delimiter || ';';
-    
+
     var options = {};
     this.split(delimiter).each(function(){
         var name  = this.substring(0, this.indexOf('=')).trim();
         var value = this.substring(this.indexOf('=') + 1).trim();
-        
+
         if (name === '' && value.length > 0) {
             options[value] = true;
         } else {
@@ -59,12 +135,36 @@ String.prototype.parseProperties = function(delimiter){
             } else if (value === 'true') {
                 value = true;
             }
-            
+
             options[name] = value;
         }
     });
-    
+
     return options;
+};
+HTMLElement.prototype.getParent = function(selector){
+    if (selector) {
+        var obj	= this;
+        while ((obj = obj.parentNode)) {
+            if (selector.charAt(0) === '.' && obj.classList.contains(selector.substring(1)) === true) {
+                return obj;
+            } else if (selector.charAt(0) === '#' && (obj.id||'').split(' ').contains(selector.substring(1)) === true) {
+                return obj;
+            } else if (/^[a-z]/.test(selector.toLowerCase()) === true && obj.nodeName.toLowerCase().split(' ').contains(selector.toLowerCase()) === true) {
+                return obj;
+            } else if (/^[a-z]*\[(\w+)/.test(selector.toLowerCase()) === true) {
+                var reg = selector.match(/^([a-z]*)\[([a-zA-Z0-9\-_]+)/);
+                if (reg.length > 2 && typeof reg[2] === 'string') {
+                    if ((reg[1].length === 0 || obj.nodeName.toLowerCase().split(' ').contains(reg[1].toLowerCase()) === true) && obj.getAttribute(reg[2]) !== null) {
+                        return obj;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+    return this.parentNode;
 };
 /**
  * Trata um URL substituindo, adicionando e excluindo as variáveis GET.
