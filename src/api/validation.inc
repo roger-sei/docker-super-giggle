@@ -20,7 +20,7 @@
                 <div class="wrapper flex-space-between" >
                     <span class="flex-space-between" >
                         <a href="/" class="button-icon" >
-                            <img src="/assets/home.png" height="30px" />
+                            <img src="/assets/favicon.png" height="30px" />
                         </a>
                         <span>&nbsp;&nbsp;&nbsp;</span>
                         <span class="button-group--toggle" data-button-toggle-set="all" >

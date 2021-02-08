@@ -25,8 +25,6 @@ $instance = new class
         if (isset($_GET['project']) === true) {
             $this->workingDir = $this->workingDir . '/' . urldecode($_GET['project']);
             $this->processValidationPage();
-        } elseif (file_exists("{$this->workingDir}/.git") === true) {
-            $this->processValidationPage();
         } else {
             $this->processProjectsPage();
         }
@@ -185,6 +183,12 @@ $instance = new class
                 } elseif (str_ends_with($pointer->getFilename(), '.html') === true || str_ends_with($pointer->getFilename(), '.htm') === true) {
                     $total['html']++;
                 }
+            }
+
+            // Single project.
+            if (empty($name) === true) {
+                $name     = 'Home';
+                $relative = './';
             }
 
             $json[$dir] = [
