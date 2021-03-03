@@ -19,7 +19,7 @@ Filter results checking only the last changes, unstaged files or a full scan in 
 Run the following container inside your working project:
 
 ```
-docker container run --rm -p8120:80 -v$(pwd):/html rogersei/super-giggle
+docker container run --rm -p8120:80 -v$(pwd):/host rogersei/super-giggle
 ```
 
 Access your browser in the following address http://localhost:8120
