@@ -1,5 +1,6 @@
 <?php
-$file= ($_GET['file'] ?? null);
+
+$file = ($_GET['file'] ?? null);
 
 if (empty($file) === true) {
     die('Missing "file" parameter!');
@@ -8,10 +9,10 @@ if (empty($file) === true) {
 if (empty($_GET['project']) === false) {
     $fullpath = realpath("{$_GET['project']}/$file");
 } else {
-    $fullpath = realpath("/var/www/html/$file");
+    $fullpath = realpath("/host/$file");
 }
 
-if (strpos($fullpath, '/var/www/html/') === false) {
+if (strpos($fullpath, '/host/') === false) {
     die("Invalid path!");
 } elseif (file_exists($fullpath) === false) {
     die("File \"$file\" not found!");

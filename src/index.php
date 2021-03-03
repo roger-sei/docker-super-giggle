@@ -12,7 +12,7 @@ $instance = new class
      *
      * @var string.
      */
-    private $workingDir = '/var/www/html';
+    private $workingDir = '/host';
 
 
     /**
@@ -99,7 +99,7 @@ $instance = new class
         }
 
         $options       = join(' ', $options);
-        $command       = "/var/www/manager/super-giggle/bin/super-giggle --warning-severity=5 $options --json --diff --repo={$this->workingDir} --phpcs=/var/www/manager/phpcs/bin/phpcs";
+        $command       = "/var/www/html/super-giggle/bin/super-giggle --warning-severity=5 $options --json --diff --repo={$this->workingDir} --phpcs=/var/www/html/phpcs/bin/phpcs";
         $result        = shell_exec($command);
         $json          = (json_decode($result) ?? []);
         $totalWarnings = 0;
@@ -134,7 +134,7 @@ $instance = new class
 
 
     /**
-     * Vasculha todo o diretório /var/www/html em busca de projetos git.
+     * Vasculha todo o diretório $workingDir em busca de projetos git.
      *
      * @return array.
      */

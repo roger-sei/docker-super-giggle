@@ -1,0 +1,2 @@
+#!/bin/bash
+/var/www/html/super-giggle/bin/super-giggle --repo=/host --phpcs=/var/www/html/phpcs/bin/phpcs --diff-cached $1 $2
