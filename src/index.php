@@ -23,7 +23,7 @@ $instance = new class
         $this->systemCheckup();
 
         if (isset($_GET['project']) === true) {
-            $this->workingDir = $this->workingDir . '/' . urldecode($_GET['project']);
+            $this->workingDir = realpath($this->workingDir . '/' . urldecode($_GET['project']));
             $this->processValidationPage();
         } else {
             $this->processProjectsPage();
