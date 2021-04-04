@@ -168,21 +168,26 @@ $instance = new class
                 'css'   => 0,
                 'html'  => 0,
             ];
-            foreach ((new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator("$dir"))) as $pointer) {
-                if ($pointer->isDir() === true) {
-                    continue;
-                }
 
-                $total['files']++;
-                if (str_ends_with($pointer->getFilename(), '.php') === true) {
-                    $total['php']++;
-                } elseif (str_ends_with($pointer->getFilename(), '.js') === true) {
-                    $total['js']++;
-                } elseif (str_ends_with($pointer->getFilename(), '.css') === true) {
-                    $total['css']++;
-                } elseif (str_ends_with($pointer->getFilename(), '.html') === true || str_ends_with($pointer->getFilename(), '.htm') === true) {
-                    $total['html']++;
+            try {
+                foreach ((new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator("$dir"))) as $pointer) {
+                    if ($pointer->isDir() === true) {
+                        continue;
+                    }
+
+                    $total['files']++;
+                    if (str_ends_with($pointer->getFilename(), '.php') === true) {
+                        $total['php']++;
+                    } elseif (str_ends_with($pointer->getFilename(), '.js') === true) {
+                        $total['js']++;
+                    } elseif (str_ends_with($pointer->getFilename(), '.css') === true) {
+                        $total['css']++;
+                    } elseif (str_ends_with($pointer->getFilename(), '.html') === true || str_ends_with($pointer->getFilename(), '.htm') === true) {
+                        $total['html']++;
+                    }
                 }
+            } catch (\Exception $e) {
+
             }
 
             // Single project.
