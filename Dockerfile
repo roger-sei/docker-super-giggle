@@ -7,6 +7,8 @@ COPY src /var/www/html
 COPY bin/check-changes /bin/check-changes
 COPY bin/check-staged /bin/check-staged
 COPY bin/fullscan /bin/fullscan
+COPY bin/super-giggle /bin/super-giggle
+COPY bin/super-giggle /bin/sg
 
 RUN apt update \
     && apt install -y libzip-dev libcurl4-openssl-dev unzip git \
@@ -30,3 +32,5 @@ RUN apt update \
 VOLUME /host
 
 WORKDIR /host
+
+ENTRYPOINT ["/bin/super-giggle"]

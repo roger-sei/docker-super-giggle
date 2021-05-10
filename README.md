@@ -40,7 +40,7 @@ docker container run --rm -v$(pwd):/host rogersei/super-giggle check-staged
 
 Even a fullscan:
 ```
-docker container run --rm -v$(pwd):/host rogersei/super-giggle fullscan
+docker container run --rm -v$(pwd):/host rogersei/super-giggle --fullscan
 ```
 
 
@@ -48,8 +48,8 @@ docker container run --rm -v$(pwd):/host rogersei/super-giggle fullscan
 ### Using another standart, other than PSR12
 
 ```
-docker container run --rm -v$(pwd):/host rogersei/super-giggle nn --standard=zend
-docker container run --rm -v$(pwd):/host rogersei/super-giggle fullscan --standard=pear
+docker container run --rm -v$(pwd):/host rogersei/super-giggle --standard=zend
+docker container run --rm -v$(pwd):/host rogersei/super-giggle --fullscan --standard=pear
 ```
 
 
