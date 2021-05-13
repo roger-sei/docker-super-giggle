@@ -33,4 +33,4 @@ VOLUME /host
 
 WORKDIR /host
 
-#ENTRYPOINT ["/bin/super-giggle"]
+ENTRYPOINT ["/bin/super-giggle"]
