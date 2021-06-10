@@ -25,7 +25,7 @@
                         <span>&nbsp;&nbsp;&nbsp;</span>
                         <span class="button-group--toggle" data-button-toggle-set="all" >
                             <a href="?all=" class="button" data-parse-auto-get="name=all; toggle" >Unstaged</a>
-                            <a href="?all=1" class="button" data-parse-auto-get="name=all; value=1; toggle" >Staged</a>
+                            <a href="?all=2" class="button" data-parse-auto-get="name=all; value=2; toggle" >Staged</a>
                             <a href="?all=3" class="button" data-parse-auto-get="name=all; value=3; toggle; remove=all" >Full scan</a>
                         </span>
                     </span>
