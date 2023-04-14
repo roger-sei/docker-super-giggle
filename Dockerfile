@@ -1,4 +1,4 @@
-FROM php:8.0.1-apache-buster
+FROM php:apache-buster
 
 EXPOSE 80 8120
 
